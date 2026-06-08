@@ -1,0 +1,70 @@
+name: Build on Linux
+
+on: [push]
+
+jobs:
+  build:
+    runs-on: [self-hosted, linux, light]
+
+    steps:
+    - name: Checkout 🛎️
+      uses: actions/checkout@v4
+      with:
+        path: main_class
+    - name: make
+      run: cd main_class && make -j class
+    - name: run class
+      run: cd main_class && ./class explanatory.ini
+
+  test_classy:
+    runs-on:
+      group: private
+      labels: [self-hosted, light]
+
+    steps:
+      - name: Checkout 🛎️
+        uses: actions/checkout@v4
+        with:
+          path: main_class
+      - name: Run test 🤖
+        run: |
+          docker run --rm \
+            -u $(id -u):$(id -g) \
+            -e HOME=/tmp \
+            -v "${GITHUB_WORKSPACE}"/main_class:/github \
+            python:latest bash -c '
+              python -m venv /tmp/venv &&
+              source /tmp/venv/bin/activate &&
+              pip install numpy &&
+              cd /github &&
+              pip install . &&
+              python -c "import classy"
+            '
+
+
+  nose_tests_lvl1:
+    runs-on: [self-hosted, linux, heavy]
+
+    steps:
+    - name: Checkout 🛎️
+      uses: actions/checkout@v4
+      with:
+        path: main_class
+    - name: Create virtual Python environment
+      run: |
+        rm -rf venv
+        DEB_PYTHON_INSTALL_LAYOUT='deb' python -m virtualenv venv --system-site-packages
+        source venv/bin/activate
+        pip install --upgrade setuptools pytest
+        deactivate
+    - name: make
+      run: source venv/bin/activate && cd main_class && pip install . && deactivate
+    - name: Testing 🤖
+      run: |
+        source venv/bin/activate
+        cd main_class/python
+        TEST_LEVEL=1 COMPARE_OUTPUT_REF=0 python -m pytest -v -m test_scenario test_class.py
+        deactivate
+    - name: Remove virtual Python environment
+      if: success() || failure()
+      run: rm -rf venv

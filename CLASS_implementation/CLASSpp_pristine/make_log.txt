@@ -1,0 +1,10 @@
+if ! [ -e /home/storgaard/CLASSpp_DRMD/build ]; then mkdir /home/storgaard/CLASSpp_DRMD/build ; mkdir /home/storgaard/CLASSpp_DRMD/build/lib; fi;
+touch build/.base
+rm -rf python/build && mkdir python/build
+cd /home/storgaard/CLASSpp_DRMD/build; g++ -O3   -g -fPIC -D__CLASSDIR__='"/home/storgaard/CLASSpp_DRMD"' -DHYREC -std=c++17 -I../include -I../tools -I../source -I../ -I../hyrec -c ../tools/growTable.cpp -o growTable.opp
+cd /home/storgaard/CLASSpp_DRMD/build; g++ -O3   -g -fPIC -D__CLASSDIR__='"/home/storgaard/CLASSpp_DRMD"' -DHYREC -std=c++17 -I../include -I../tools -I../source -I../ -I../hyrec -c ../tools/dei_rkck.cpp -o dei_rkck.opp
+cd /home/storgaard/CLASSpp_DRMD/build; g++ -O3   -g -fPIC -D__CLASSDIR__='"/home/storgaard/CLASSpp_DRMD"' -DHYREC -std=c++17 -I../include -I../tools -I../source -I../ -I../hyrec -c ../tools/sparse.cpp -o sparse.opp
+pip install .
+make: pip: No such file or directory
+make: *** [Makefile:99: classy] Error 127
+make: *** Waiting for unfinished jobs....
